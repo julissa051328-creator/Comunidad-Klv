@@ -11,65 +11,72 @@ import nextBirthdays from './modules/next_birthdays.js';
 import birthdaySetchannel from './modules/birthday_setchannel.js';
 
 import { InteractionHelper } from '../../utils/interactionHelper.js';
+
 export default {
     data: new SlashCommandBuilder()
-        .setName('birthday')
-        .setDescription('Birthday system commands')
+        .setName('cumpleaños')
+        .setDescription('Sistema de cumpleaños de la comunidad KLV')
+        
         .addSubcommand(subcommand =>
             subcommand
-                .setName('set')
-                .setDescription('Set your birthday')
+                .setName('poner')
+                .setDescription('Configura tu fecha de cumpleaños')
                 .addIntegerOption(option =>
                     option
-                        .setName('month')
-                        .setDescription('Birth month (1-12)')
+                        .setName('mes')
+                        .setDescription('Mes de nacimiento (1-12)')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(12)
                 )
                 .addIntegerOption(option =>
                     option
-                        .setName('day')
-                        .setDescription('Birth day (1-31)')
+                        .setName('dia')
+                        .setDescription('Día de nacimiento (1-31)')
                         .setRequired(true)
                         .setMinValue(1)
                         .setMaxValue(31)
                 )
         )
+
         .addSubcommand(subcommand =>
             subcommand
                 .setName('info')
-                .setDescription('View birthday information')
+                .setDescription('Mira la información de cumpleaños')
                 .addUserOption(option =>
                     option
-                        .setName('user')
-                        .setDescription('User to check birthday for')
+                        .setName('usuario')
+                        .setDescription('Usuario para revisar su cumpleaños')
                         .setRequired(false)
                 )
         )
+
         .addSubcommand(subcommand =>
             subcommand
-                .setName('list')
-                .setDescription('List all birthdays in the server')
+                .setName('lista')
+                .setDescription('Muestra todos los cumpleaños del servidor')
         )
+
         .addSubcommand(subcommand =>
             subcommand
-                .setName('remove')
-                .setDescription('Remove your birthday')
+                .setName('quitar')
+                .setDescription('Elimina tu cumpleaños guardado')
         )
+
         .addSubcommand(subcommand =>
             subcommand
-                .setName('next')
-                .setDescription('Show upcoming birthdays')
+                .setName('proximos')
+                .setDescription('Muestra los próximos cumpleaños')
         )
+
         .addSubcommand(subcommand =>
             subcommand
-                .setName('setchannel')
-                .setDescription('Set or disable the channel for birthday announcements. (Manage Server required)')
+                .setName('canal')
+                .setDescription('Configura o desactiva el canal de avisos de cumpleaños (requiere administrar servidor)')
                 .addChannelOption(option =>
                     option
-                        .setName('channel')
-                        .setDescription('The text channel for announcements. Leave empty to disable.')
+                        .setName('canal')
+                        .setDescription('Canal donde se enviarán los avisos. Déjalo vacío para desactivar.')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)
                 )
@@ -78,34 +85,45 @@ export default {
     async execute(interaction, config, client) {
         try {
             const subcommand = interaction.options.getSubcommand();
-            
+
             switch (subcommand) {
-                case 'set':
+                case 'poner':
                     return await birthdaySet.execute(interaction, config, client);
+
                 case 'info':
                     return await birthdayInfo.execute(interaction, config, client);
-                case 'list':
+
+                case 'lista':
                     return await birthdayList.execute(interaction, config, client);
-                case 'remove':
+
+                case 'quitar':
                     return await birthdayRemove.execute(interaction, config, client);
-                case 'next':
+
+                case 'proximos':
                     return await nextBirthdays.execute(interaction, config, client);
-                case 'setchannel':
+
+                case 'canal':
                     return await birthdaySetchannel.execute(interaction, config, client);
+
                 default:
-                    return await replyUserError(interaction, { type: ErrorTypes.UNKNOWN, message: 'Unknown subcommand' });
+                    return await replyUserError(interaction, {
+                        type: ErrorTypes.UNKNOWN,
+                        message: 'Subcomando desconocido'
+                    });
             }
+
         } catch (error) {
-            logger.error('Birthday command execution failed', {
+            logger.error('Error ejecutando comando de cumpleaños', {
                 error: error.message,
                 stack: error.stack,
                 userId: interaction.user.id,
                 guildId: interaction.guildId,
-                commandName: 'birthday',
+                commandName: 'cumpleaños',
                 subcommand: interaction.options.getSubcommand()
             });
+
             await handleInteractionError(interaction, error, {
-                commandName: 'birthday',
+                commandName: 'cumpleaños',
                 source: 'birthday_command'
             });
         }
